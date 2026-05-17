@@ -6,20 +6,27 @@
 #'
 #' @description
 #' This function if foundation of LIU package. It builds a high-performance 
-#' SQL-like B+Tree index for a data frame column, enabling fast joins and lookups.
-#' Works only for columns of ints or doubles. Values of given column will be 
-#' put in B+Tree with their row numbers. It ignores NA in given column.
+#' SQL-like B+Tree index for a data frame column.
+#' Works only for columns of ints, doubles or strings. Values of given column will be 
+#' put in B+Tree with their row numbers. It ignores NA.
 #'
 #' @param df Data frame to be indexed.
 #' @param column_name Character string specifying the column to index. 
-#' (int or double column)
+#' (int, double or string column)
 #'
 #' @return
 #' C LIU index object (pointer).
 #'
 #' @examples
 #' \dontrun{
-#' idx <- liu_build(mtcars, "mpg")
+#' df <- data.frame(
+#' id = as.integer(c(1,2,3)),
+#' val = c(3.5,6.7,2.1),
+#' country = c("Poland", "Hungary", "England")
+#' )
+#' idx_int <- liu_build(df, "id")
+#' idx_double <- liu_build(df, "val")
+#' idx_string <- liu_build(df, "country")
 #' }
 #' @export
 liu_build <- function(df, column_name) {
@@ -55,18 +62,24 @@ liu_build <- function(df, column_name) {
 #' with given vector of keys. It ignores NA in keys vector.
 #'
 #' @param index LIU index object (external pointer).
-#' @param key Vector of keys (int or double must match LIU index type) to search for.
+#' @param key Vector of keys (integer, double or character must match LIU index type) to search for.
 #' @return
 #' Integer vector of row indices where the keys were found. 
 #' Returns an empty vector if none of the keys exist.
 #'
 #' @examples
 #' \dontrun{
-#' row_idx <- liu_search(idx, 110)
-#' df[row_ids, ]
+#' df <- data.frame(
+#'   id = as.integer(c(1,2,3,4)),
+#'   val = c(0.5,6.7,2.1,0.5)
+#' )
+#' idx <- liu_build(df, "val")
 #' 
-#' row_ids <- liu_search(idx, c(6.7,21.15))
-#' df[row_idx, ]
+#' row_idx <- liu_search(idx, 6.7)
+#' # [1] 2
+#'
+#' row_ids <- liu_search(idx, c(6.7, 0.5))
+#' # [1] 2 1 4
 #' }
 #' @export
 liu_search <- function(index, key) {
@@ -107,8 +120,14 @@ liu_search <- function(index, key) {
 #'
 #' @examples
 #' \dontrun{
-#' idx <- liu_build(mtcars, "hp")
-#' # ...
+#' df <- data.frame(
+#'   id = as.integer(c(1,2,3)),
+#'   val = c(3.5,6.7,2.1)
+#' )
+#' idx <- liu_build(df, "id")
+#' 
+#' #...
+#' 
 #' liu_free(idx)
 #'}
 #' @export
@@ -143,12 +162,18 @@ liu_free <- function(index) {
 #' 
 #' @examples
 #' \dontrun{
-#' Find rows where 10 <= key < 50
-#' rows <- liu_search_range(idx, 10, 50)
-#' df[rows]
-#'
-#' Row indices with keys greater or equal to 2.5
-#' rows <- liu_search_range(idx, 2.5)
+#' df <- data.frame(
+#'   id = as.integer(c(1,2,3,1)),
+#'   val = c(0.5,6.7,2.1,0.5)
+#' )
+#' idx <- liu_build(df, "id")
+#' # Find rows where 1 <= key < 3
+#' row_ids <- liu_search_range(idx, as.integer(1), as.integer(3))
+#' # [1] 1 2 4
+
+#' # Row indices with keys greater or equal to 2
+#' row_ids <- liu_search_range(idx, as.integer(2))
+#' # [1] 2 3
 #'}
 #' @export
 liu_search_range <- function(index, start=NA, end=NA) {
@@ -201,8 +226,19 @@ liu_search_range <- function(index, start=NA, end=NA) {
 #'
 #' @examples
 #' \dontrun{
-#' Get row indices for the smallest key in the index
+#' df <- data.frame(
+#'   id = as.integer(c(1,2,3,1)),
+#'   val = c(0.5,6.7,2.1,0.5),
+#'   country = c("Poland", "Hungary", "England")
+#' )
+#' # Could be be build also on "id" and "country"
+#' idx <- liu_build(df, "val")
+#' 
+#' # Get row indices for the smallest and largest key in the index
 #' min_rows <- liu_min(idx)
+#' # [1] 1 4
+#' max_rows <- liu_max(idx)
+#' # [1] 2
 #'}
 #' @export
 liu_min <- function(index) {
@@ -230,8 +266,18 @@ liu_min <- function(index) {
 #'
 #' @examples
 #' \dontrun{
-#' # Get row indices for the smallest key in the index
+#' df <- data.frame(
+#'   id = as.integer(c(1,2,3,1)),
+#'   val = c(0.5,6.7,2.1,0.5),
+#'   country = c("Poland", "Hungary", "England")
+#' )
+#' idx <- liu_build(df, "val")
+#' 
+#' # Get row indices for the smallest and largest key in the index
+#' min_rows <- liu_min(idx)
+#' # [1] 1 4
 #' max_rows <- liu_max(idx)
+#' # [1] 2
 #' }
 #' @export
 liu_max <- function(index) {
@@ -258,7 +304,7 @@ liu_max <- function(index) {
 #' data frame as merge(df_left, df_right, "id", incomparables = NA)
 #' 
 #' @param df_left Data frame (left side of the join).
-#' @param column_name Name of the join numeric column (must exist in left data frames).
+#' @param column_name Name of the join column (must exist in left data frames).
 #' @param df_right The "indexed" data frame (right side of the join).
 #' @param index A LIU index object built on the join column of `df_right`.
 #' @param how A character string "inner" or "left".
@@ -268,12 +314,33 @@ liu_max <- function(index) {
 #'
 #' @examples
 #' \dontrun{
-#' idx <- liu_build(df_b, "id")
-#' merged <- liu_join(df_a, "id", df_b, idx)
-#'
-#' idx <- liu_build(df_b, "id")
-#' merged <- liu_join(df_a, "id", df_b, idx, "left")
-#' ?
+#' df_left <- data.frame(
+#'   id1 = as.integer(c(1,2,2,3)),
+#'   val = c(0.5,6.7,3.2,4.5)
+#' )
+#' df_right <- data.frame(
+#'   id2 = as.integer(c(1,1,2)),
+#'   val2 = c(2.2,0.7,8.9)
+#' )
+#' idx <- liu_build(df_right, "id2")
+#' 
+#' # inner:
+#' merged <- liu_join(df_left, "id1", df_right, idx)
+#' #   id1 val id2 val2
+#' # 1   1 0.5   1  2.2
+#' # 2   1 0.5   1  0.7
+#' # 3   2 6.7   2  8.9
+#' # 4   2 3.2   2  8.9
+#' 
+#' # left:
+#' merged <- liu_join(df_left, "id1", df_right, idx, "left")
+#' #   id1 val id2 val2
+#' # 1   1 0.5   1  2.2
+#' # 2   1 0.5   1  0.7
+#' # 3   2 6.7   2  8.9
+#' # 4   2 3.2   2  8.9
+#' # 5   3 4.5  NA   NA
+#' }
 #' @export
 liu_join <- function(df_left, column_name, df_right, index, how="inner") {
   if (!is.character(column_name)) {
@@ -360,11 +427,17 @@ liu_join <- function(df_left, column_name, df_right, index, how="inner") {
 #' 
 #' @examples
 #' \dontrun{
-#' Checks in int index if 2, NA, 5 are present
-#' logical <- liu_isin(idx, as.integer(c(2,NA,5)))
+#' df <- data.frame(
+#'   id = as.integer(c(1,2,3,1)),
+#'   val = c(0.5,6.7,2.1,0.5)
+#' )
+#' idx <- liu_build(df, "val")
 #' 
-#' Checks in double index if 6.7 is present
+#' logical <- liu_isin(idx, c(0.5,NA,2.1,3.4))
+#' # [1] TRUE FALSE TRUE FALSE
+#' 
 #' logical <- liu_isin(idx, 6.7)
+#' # [1] TRUE
 #' }
 #' @export
 liu_isin <- function(index, keys){
@@ -412,11 +485,20 @@ liu_isin <- function(index, keys){
 #' 
 #' @examples
 #' \dontrun{
-#' # Find all rows where country starts with "Po" (e.g., Poland, Portugal)
-#' rows_po <- liu_search_prefix(idx, "Po")
+#' df <- data.frame(
+#'   id = as.integer(c(1,2,3)),
+#'   val = c(3.5,6.7,2.1),
+#'   country = c("Poland", "Hungary", "Portugal")
+#' )
+#' idx <- liu_build(df, "country")
+#' 
+#' # Countries starting with "Po"
+#' liu_search_prefix(idx, "Po")
+#' # [1] 1 3
 #'
-#' # Find all rows starting with a specific letter
-#' rows_a <- liu_search_prefix(idx, "a")
+#' # Countries starting with "H"
+#' liu_search_prefix(idx, "H")
+#' # [1] 2
 #' }
 #' @export
 liu_search_prefix <- function(index, prefix) {

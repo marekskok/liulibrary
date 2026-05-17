@@ -19,10 +19,16 @@ Checks if given keys are present in LIU index. For NA it returns FALSE.
 }
 \examples{
 \dontrun{
-Checks in int index if 2, NA, 5 are present
-logical <- liu_isin(idx, as.integer(c(2,NA,5)))
+df <- data.frame(
+  id = as.integer(c(1,2,3,1)),
+  val = c(0.5,6.7,2.1,0.5)
+)
+idx <- liu_build(df, "val")
 
-Checks in double index if 6.7 is present
+logical <- liu_isin(idx, c(0.5,NA,2.1,3.4))
+# [1] TRUE FALSE TRUE FALSE
+
 logical <- liu_isin(idx, 6.7)
+# [1] TRUE
 }
 }

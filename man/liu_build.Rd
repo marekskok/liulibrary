@@ -10,19 +10,26 @@ liu_build(df, column_name)
 \item{df}{Data frame to be indexed.}
 
 \item{column_name}{Character string specifying the column to index. 
-(int or double column)}
+(int, double or string column)}
 }
 \value{
 C LIU index object (pointer).
 }
 \description{
 This function if foundation of LIU package. It builds a high-performance 
-SQL-like B+Tree index for a data frame column, enabling fast joins and lookups.
-Works only for columns of ints or doubles. Values of given column will be 
-put in B+Tree with their row numbers. It ignores NA in given column.
+SQL-like B+Tree index for a data frame column.
+Works only for columns of ints, doubles or strings. Values of given column will be 
+put in B+Tree with their row numbers. It ignores NA.
 }
 \examples{
 \dontrun{
-idx <- liu_build(mtcars, "mpg")
+df <- data.frame(
+id = as.integer(c(1,2,3)),
+val = c(3.5,6.7,2.1),
+country = c("Poland", "Hungary", "England")
+)
+idx_int <- liu_build(df, "id")
+idx_double <- liu_build(df, "val")
+idx_string <- liu_build(df, "country")
 }
 }

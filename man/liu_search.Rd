@@ -9,7 +9,7 @@ liu_search(index, key)
 \arguments{
 \item{index}{LIU index object (external pointer).}
 
-\item{key}{Vector of keys (int or double must match LIU index type) to search for.}
+\item{key}{Vector of keys (integer, double or character must match LIU index type) to search for.}
 }
 \value{
 Integer vector of row indices where the keys were found. 
@@ -21,10 +21,16 @@ with given vector of keys. It ignores NA in keys vector.
 }
 \examples{
 \dontrun{
-row_idx <- liu_search(idx, 110)
-df[row_ids, ]
+df <- data.frame(
+  id = as.integer(c(1,2,3,4)),
+  val = c(0.5,6.7,2.1,0.5)
+)
+idx <- liu_build(df, "val")
 
-row_ids <- liu_search(idx, c(6.7,21.15))
-df[row_idx, ]
+row_idx <- liu_search(idx, 6.7)
+# [1] 2
+
+row_ids <- liu_search(idx, c(6.7, 0.5))
+# [1] 2 1 4
 }
 }

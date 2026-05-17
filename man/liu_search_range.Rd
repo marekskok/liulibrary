@@ -25,11 +25,16 @@ the start, the end, or both blank for an unbounded search.
 }
 \examples{
 \dontrun{
-Find rows where 10 <= key < 50
-rows <- liu_search_range(idx, 10, 50)
-df[rows]
-
-Row indices with keys greater or equal to 2.5
-rows <- liu_search_range(idx, 2.5)
+df <- data.frame(
+  id = as.integer(c(1,2,3,1)),
+  val = c(0.5,6.7,2.1,0.5)
+)
+idx <- liu_build(df, "id")
+# Find rows where 1 <= key < 3
+row_ids <- liu_search_range(idx, as.integer(1), as.integer(3))
+# [1] 1 2 4
+# Row indices with keys greater or equal to 2
+row_ids <- liu_search_range(idx, as.integer(2))
+# [1] 2 3
 }
 }

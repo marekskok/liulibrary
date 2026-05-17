@@ -15,8 +15,14 @@ Use this when index is no longer needed to prevent memory leaks.
 }
 \examples{
 \dontrun{
-idx <- liu_build(mtcars, "hp")
-# ...
+df <- data.frame(
+  id = as.integer(c(1,2,3)),
+  val = c(3.5,6.7,2.1)
+)
+idx <- liu_build(df, "id")
+
+#...
+
 liu_free(idx)
 }
 }

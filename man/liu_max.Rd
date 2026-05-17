@@ -17,7 +17,17 @@ Search for the largest key in LIU index and returns their row indices.
 }
 \examples{
 \dontrun{
-# Get row indices for the smallest key in the index
+df <- data.frame(
+  id = as.integer(c(1,2,3,1)),
+  val = c(0.5,6.7,2.1,0.5),
+  country = c("Poland", "Hungary", "England")
+)
+idx <- liu_build(df, "val")
+
+# Get row indices for the smallest and largest key in the index
+min_rows <- liu_min(idx)
+# [1] 1 4
 max_rows <- liu_max(idx)
+# [1] 2
 }
 }

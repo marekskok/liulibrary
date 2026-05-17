@@ -9,7 +9,7 @@ liu_join(df_left, column_name, df_right, index, how = "inner")
 \arguments{
 \item{df_left}{Data frame (left side of the join).}
 
-\item{column_name}{Name of the join numeric column (must exist in left data frames).}
+\item{column_name}{Name of the join column (must exist in left data frames).}
 
 \item{df_right}{The "indexed" data frame (right side of the join).}
 
@@ -27,4 +27,34 @@ arguments: left data table, name of one of it's columns, right data
 table, index built on it. Type of chosen column must match index type.
 Indexes doesn't take NA, so NA in given column are ignored. It returns the same
 data frame as merge(df_left, df_right, "id", incomparables = NA)
+}
+\examples{
+\dontrun{
+df_left <- data.frame(
+  id1 = as.integer(c(1,2,2,3)),
+  val = c(0.5,6.7,3.2,4.5)
+)
+df_right <- data.frame(
+  id2 = as.integer(c(1,1,2)),
+  val2 = c(2.2,0.7,8.9)
+)
+idx <- liu_build(df_right, "id2")
+
+# inner:
+merged <- liu_join(df_left, "id1", df_right, idx)
+#   id1 val id2 val2
+# 1   1 0.5   1  2.2
+# 2   1 0.5   1  0.7
+# 3   2 6.7   2  8.9
+# 4   2 3.2   2  8.9
+
+# left:
+merged <- liu_join(df_left, "id1", df_right, idx, "left")
+#   id1 val id2 val2
+# 1   1 0.5   1  2.2
+# 2   1 0.5   1  0.7
+# 3   2 6.7   2  8.9
+# 4   2 3.2   2  8.9
+# 5   3 4.5  NA   NA
+}
 }

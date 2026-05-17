@@ -7,24 +7,33 @@
 liu_search_prefix(index, prefix)
 }
 \arguments{
-\item{index}{A LIU index object (external pointer).}
+\item{index}{A LIU string index object (external pointer).}
 
-\item{prefix}{Numeric scalar, beginning of the range (inclusive). Must}
+\item{prefix}{Character scalar.}
 }
 \value{
-Integer number of row indices with keys within the range.
+An integer vector containing sorted row indices where the keys match the specified prefix.
 }
 \description{
-Count all row indices with keys within a specified numerical range [start, end) in LIU. 
-index. This operation is very efficient due to the B+Tree structure. You can leave
-the start, the end, or both blank for an unbounded count.
+Fast prefix search for string-based LIU index.
+It identifies the range of matching keys in logarithmic time and retrieves 
+corresponding row indices from the B+Tree.
 }
 \examples{
 \dontrun{
-Count rows where 10 <= key < 50
-rows <- liu_count(idx, 10, 50)
+df <- data.frame(
+  id = as.integer(c(1,2,3)),
+  val = c(3.5,6.7,2.1),
+  country = c("Poland", "Hungary", "Portugal")
+)
+idx <- liu_build(df, "country")
 
-Count row indices with keys greater or equal to 2.5
-rows <- liu_count(idx, 2.5)
+# Countries starting with "Po"
+liu_search_prefix(idx, "Po")
+# [1] 1 3
+
+# Countries starting with "H"
+liu_search_prefix(idx, "H")
+# [1] 2
 }
 }
