@@ -1,6 +1,5 @@
 export(liu_build)
 export(liu_free)
-export(liu_count)
 export(liu_isin)
 export(liu_join)
 export(liu_max)

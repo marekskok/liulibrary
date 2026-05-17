@@ -12,7 +12,6 @@ parent: "Home"
 * [liu_min() / liu_max()](#liu_min--liu_max) - Extremes.
 * [liu_join()](#liu_join) - High-performance joining.
 * [liu_isin()](#liu_isin) - Membership testing.
-* [liu_count()](#liu_count) - Efficient counting.
 
 #### liu_build()
 This function is foundation of LIU package. It creates LIU index on given column. For now works only with columns of ints or doubles, but ignores NA. 
@@ -152,21 +151,4 @@ logical <- liu_isin(idx, c(0.5,NA,2.1,3.4))
 
 logical <- liu_isin(idx, 6.7)
 # [1] TRUE
-```
-#### liu_count()
-Count all row indices with keys within a specified numerical range [start, end) in LIU. index. You can leave the start, the end, or both blank for an unbounded search.
-Technical: Uses liu_search_range().
-```R
-df <- data.frame(
-    id = as.integer(c(1,2,3,1)),
-    val = c(0.5,6.7,2.1,0.5)
-)
-idx <- liu_build(df, "id")
-# Counts rows where 1 <= key < 3
-count <- liu_count(idx, as.integer(1), as.integer(3))
-# [1] 3
-
-# Count of row indices with keys greater or equal to 2
-count <- liu_count(idx, as.integer(2))
-# [1] 2
 ```

@@ -397,36 +397,6 @@ liu_isin <- function(index, keys){
 }
 #'
 #' @title
-#' Count in Range
-#'
-#' @description
-#' Count all row indices with keys within a specified numerical range [start, end) in LIU. 
-#' index. This operation is very efficient due to the B+Tree structure. You can leave
-#' the start, the end, or both blank for an unbounded count.
-#'
-#' @param index A LIU index object (external pointer).
-#' @param start Numeric scalar, beginning of the range (inclusive). Must
-#' match index type (int or double).
-#' @param end Numeric scalar, end of the range (exclusive). Must
-#' match index type (int or double).
-#'
-#' @return
-#' Integer number of row indices with keys within the range.
-#' 
-#' @examples
-#' \dontrun{
-#' Count rows where 10 <= key < 50
-#' rows <- liu_count(idx, 10, 50)
-#'
-#' Count row indices with keys greater or equal to 2.5
-#' rows <- liu_count(idx, 2.5)
-#' }
-#' @export
-liu_count <- function(index, start=NA, end=NA) {
-  return(sum(as.logical(liu_search_range(index, start, end))))
-}
-#'
-#' @title
 #' Prefix Search in String LIU Index
 #' 
 #' @description
