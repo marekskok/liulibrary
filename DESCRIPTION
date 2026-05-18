@@ -2,7 +2,7 @@ Package: liu
 Version: 0.7
 Date: 2026-05-16
 Title: Lightning Index Units
-Description: Implements SQL-like indexes for data frames. Makes searching for keys or merging much faster.
+Description: LIU implements SQL-like indexes for data frames in R. It allows to index columns of data frames by creating light B+trees with pairs key-row_number. This shifts complexity of searching from linear to logaritmic (O(log n)), which makes few other functions (exp. min, max, count, merge) much faster.
 Authors@R: c(person("Marek", "Skok", role = c("aut", "cre"),
                      email = "marekskok@pw.edu.pl"))
 Author: Marek Skok [aut, cre]

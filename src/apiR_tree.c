@@ -268,6 +268,8 @@ SEXP r_search_max(SEXP index_ptr) {
 SEXP r_inner_join(SEXP df_left, SEXP col_name, SEXP df_right, SEXP index_ptr, SEXP left){
     // This function is sending arguments to inner_join int or double
     // but it takes argument if it is supposed to be left join
+    // It wasn't that long in the begining but using multiple threads forced much harder 
+    // assembling of final data frame (but it is much faster).
     if (R_ExternalPtrTag(index_ptr) == Rf_install("liu_pointer_int") || R_ExternalPtrTag(index_ptr) == Rf_install("liu_pointer_string") ) {
         // Saving as C objects
         int_node* root = (int_node*)R_ExternalPtrAddr(index_ptr);

@@ -35,7 +35,8 @@ library(liu)
 Standard R data frames performs searches using vector scans (O(n)). This means that to find single value in a million-row table, R must check every single row. For large amounts of data that might not be enough.
 
 ### Structure
-Learn more from this video: https://www.youtube.com/watch?v=o_2psWN8k_c
+Learn more from [this video](https://www.youtube.com/watch?v=o_2psWN8k_c).
+
 LIU implements SQL-like indexes for data frames in R. It allows to index columns of data frames by creating light B+trees with pairs ```key-row_number```. This shifts complexity of searching from linear to logaritmic (O(log n)), which makes few other functions much faster.
 ### Key Advantages
 - **Lightning Fast Lookups:** Instead of scanning the whole column, LIU traverses short tree. 
